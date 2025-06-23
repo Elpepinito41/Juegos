@@ -2,92 +2,178 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Test de Lógica Extrema</title>
+  <title>Retro Emulador Web</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #222;
-      color: #fff;
+      background-color: #1e1e1e;
+      color: white;
+      font-family: sans-serif;
       text-align: center;
-      padding-top: 50px;
+      padding: 20px;
     }
-    .container {
-      max-width: 600px;
-      margin: auto;
+    canvas {
+      border: 4px solid #555;
+      margin-top: 20px;
     }
-    button {
+    select, input {
       margin: 10px;
-      padding: 10px 20px;
-      font-size: 18px;
+      padding: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 id="title">Test de Lógica Extrema</h1>
-    <p id="question">¿Estás listo para comenzar?</p>
-    <div id="buttons">
-      <button onclick="startGame()">¡Sí!</button>
-    </div>
-  </div>
+  <h1>🎮 Emulador de Consolas Retro</h1>
 
-  <script>
-    let step = 0;
+  <label for="consoleSelect">Selecciona consola:</label>
+  <select id="consoleSelect">
+    <option value="nes">NES</option>
+    <option value="snes">SNES</option>
+    <!-- Puedes agregar más -->
+  </select>
 
-    const questions = [
-      {
-        q: "¿Cuánto es 2 + 2?",
-        options: ["3", "4", "5"],
-        correct: "4",
-        troll: "Respuesta incorrecta. 2 + 2 = Pez según la lógica cuántica."
-      },
-      {
-        q: "¿Cuál es el color del cielo?",
-        options: ["Azul", "Rojo", "Verde"],
-        correct: "Azul",
-        troll: "Respuesta incorrecta. El cielo es una ilusión creada por los pingüinos."
-      },
-      {
-        q: "¿Qué planeta habitamos?",
-        options: ["Marte", "Tierra", "Saturno"],
-        correct: "Tierra",
-        troll: "Respuesta incorrecta. Tú vives en el plano astral 7."
-      },
-      {
-        q: "Has llegado al final. ¿Eres lógico?",
-        options: ["Sí", "No", "Depende"],
-        correct: "Sí",
-        troll: "Has fallado todas las preguntas... ¡Felicidades! Eres oficialmente un Genio Incomprendido™."
-      }
-    ];
+  <br>
+  <input type="file" id="romInput" accept=".nes,.smc">
+  <br>
 
-    function startGame() {
-      nextQuestion();
-    }
+  <canvas id="screen" width="256" height="240"></canvas>
 
-    function nextQuestion() {
-      if (step >= questions.length) {
-        document.getElementById("title").innerText = "Fin del test";
-        document.getElementById("question").innerText = "Gracias por jugar 😎";
-        document.getElementById("buttons").innerHTML = "<p style='font-size:24px;'>Te hemos trolleado, pero fue con amor.</p>";
-        return;
-      }
-
-      const q = questions[step];
-      document.getElementById("question").innerText = q.q;
-      const btns = q.options.map(opt =>
-        `<button onclick="checkAnswer('${opt}')">${opt}</button>`
-      ).join("");
-      document.getElementById("buttons").innerHTML = btns;
-    }
-
-    function checkAnswer(selected) {
-      const q = questions[step];
-      alert(q.troll);
-      step++;
-      nextQuestion();
-    }
-  </script>
+  <script src="js/jsnes.min.js"></script>
+  <script src="js/snes9x.js"></script>
+  <script src="js/emulators.js"></script>
 </body>
-</html>
+</html>const canvas = document.getElementById('screen');
+const ctx = canvas.getContext('2d');
+const consoleSelect = document.getElementById('consoleSelect');
+const romInput = document.getElementById('romInput');
 
+let currentEmulator = null;
+
+function loadNES(romData) {
+  const nes = new jsnes.NES({
+    onFrame: function (frameBuffer) {
+      const imageData = ctx.getImageData(0, 0, 256, 240);
+      for (let i = 0; i < frameBuffer.length; i++) {
+        const pixel = frameBuffer[i];
+        imageData.data[i * 4 + 0] = (pixel >> 16) & 0xFF;
+        imageData.data[i * 4 + 1] = (pixel >> 8) & 0xFF;
+        imageData.data[i * 4 + 2] = pixel & 0xFF;
+        imageData.data[i * 4 + 3] = 0xFF;
+      }
+      ctx.putImageData(imageData, 0, 0);
+    }
+  });
+  nes.loadROM(romData);
+  nes.start();
+  currentEmulator = nes;
+}
+
+// SNES
+function loadSNES(romData) {
+  // Aquí iría la lógica de snes9x (necesita WebAssembly y configuración especial)
+  alert("Soporte para SNES aún en desarrollo. (Aquí iría snes9x.js)");
+}
+
+romInput.addEventListener('change', function () {
+  const file = this.files[0];
+  const reader = new FileReader();
+  reader.onload = function () {
+    const romData = reader.result;
+    const selected = consoleSelect.value;
+    if (selected === 'nes') {
+      loadNES(romData);
+    } else if (selected === 'snes') {
+      loadSNES(romData);
+    }
+  };
+  reader.readAsBinaryString(file);
+});const canvas = document.getElementById('screen');
+const ctx = canvas.getContext('2d');
+const consoleSelect = document.getElementById('consoleSelect');
+const romInput = document.getElementById('romInput');
+
+let currentEmulator = null;
+
+function loadNES(romData) {
+  const nes = new jsnes.NES({
+    onFrame: function (frameBuffer) {
+      const imageData = ctx.getImageData(0, 0, 256, 240);
+      for (let i = 0; i < frameBuffer.length; i++) {
+        const pixel = frameBuffer[i];
+        imageData.data[i * 4 + 0] = (pixel >> 16) & 0xFF;
+        imageData.data[i * 4 + 1] = (pixel >> 8) & 0xFF;
+        imageData.data[i * 4 + 2] = pixel & 0xFF;
+        imageData.data[i * 4 + 3] = 0xFF;
+      }
+      ctx.putImageData(imageData, 0, 0);
+    }
+  });
+  nes.loadROM(romData);
+  nes.start();
+  currentEmulator = nes;
+}
+
+// SNES
+function loadSNES(romData) {
+  // Aquí iría la lógica de snes9x (necesita WebAssembly y configuración especial)
+  alert("Soporte para SNES aún en desarrollo. (Aquí iría snes9x.js)");
+}
+
+romInput.addEventListener('change', function () {
+  const file = this.files[0];
+  const reader = new FileReader();
+  reader.onload = function () {
+    const romData = reader.result;
+    const selected = consoleSelect.value;
+    if (selected === 'nes') {
+      loadNES(romData);
+    } else if (selected === 'snes') {
+      loadSNES(romData);
+    }
+  };
+  reader.readAsBinaryString(file);
+});const canvas = document.getElementById('screen');
+const ctx = canvas.getContext('2d');
+const consoleSelect = document.getElementById('consoleSelect');
+const romInput = document.getElementById('romInput');
+
+let currentEmulator = null;
+
+function loadNES(romData) {
+  const nes = new jsnes.NES({
+    onFrame: function (frameBuffer) {
+      const imageData = ctx.getImageData(0, 0, 256, 240);
+      for (let i = 0; i < frameBuffer.length; i++) {
+        const pixel = frameBuffer[i];
+        imageData.data[i * 4 + 0] = (pixel >> 16) & 0xFF;
+        imageData.data[i * 4 + 1] = (pixel >> 8) & 0xFF;
+        imageData.data[i * 4 + 2] = pixel & 0xFF;
+        imageData.data[i * 4 + 3] = 0xFF;
+      }
+      ctx.putImageData(imageData, 0, 0);
+    }
+  });
+  nes.loadROM(romData);
+  nes.start();
+  currentEmulator = nes;
+}
+
+// SNES
+function loadSNES(romData) {
+  // Aquí iría la lógica de snes9x (necesita WebAssembly y configuración especial)
+  alert("Soporte para SNES aún en desarrollo. (Aquí iría snes9x.js)");
+}
+
+romInput.addEventListener('change', function () {
+  const file = this.files[0];
+  const reader = new FileReader();
+  reader.onload = function () {
+    const romData = reader.result;
+    const selected = consoleSelect.value;
+    if (selected === 'nes') {
+      loadNES(romData);
+    } else if (selected === 'snes') {
+      loadSNES(romData);
+    }
+  };
+  reader.readAsBinaryString(file);
+});
