@@ -1,179 +1,58 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Retro Emulador Web</title>
+  <title>Retro NES Emulator</title>
   <style>
     body {
-      background-color: #1e1e1e;
+      background: #111;
       color: white;
-      font-family: sans-serif;
       text-align: center;
-      padding: 20px;
+      font-family: sans-serif;
     }
     canvas {
       border: 4px solid #555;
       margin-top: 20px;
     }
-    select, input {
-      margin: 10px;
-      padding: 10px;
-    }
   </style>
 </head>
 <body>
-  <h1>🎮 Emulador de Consolas Retro</h1>
+  <h1>🎮 Retro NES Emulator</h1>
+  <input type="file" id="romLoader" accept=".nes">
+  <br><br>
+  <canvas id="nes-canvas" width="256" height="240"></canvas>
 
-  <label for="consoleSelect">Selecciona consola:</label>
-  <select id="consoleSelect">
-    <option value="nes">NES</option>
-    <option value="snes">SNES</option>
-    <!-- Puedes agregar más -->
-  </select>
+  <script src="https://unpkg.com/jsnes/dist/jsnes.min.js"></script>
+  <script>
+    const canvas = document.getElementById('nes-canvas');
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, 256, 240);
 
-  <br>
-  <input type="file" id="romInput" accept=".nes,.smc">
-  <br>
+    const nes = new jsnes.NES({
+      onFrame: function (frameBuffer) {
+        for (let i = 0; i < frameBuffer.length; i++) {
+          imageData.data[i * 4 + 0] = (frameBuffer[i] >> 16) & 0xFF;
+          imageData.data[i * 4 + 1] = (frameBuffer[i] >> 8) & 0xFF;
+          imageData.data[i * 4 + 2] = frameBuffer[i] & 0xFF;
+          imageData.data[i * 4 + 3] = 0xFF;
+        }
+        ctx.putImageData(imageData, 0, 0);
+      },
+      onStatusUpdate: console.log,
+      onAudioSample: function () {},
+    });
 
-  <canvas id="screen" width="256" height="240"></canvas>
-
-  <script src="js/jsnes.min.js"></script>
-  <script src="js/snes9x.js"></script>
-  <script src="js/emulators.js"></script>
+    document.getElementById('romLoader').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function () {
+          nes.loadROM(reader.result);
+          nes.start();
+        };
+        reader.readAsBinaryString(file);
+      }
+    });
+  </script>
 </body>
-</html>const canvas = document.getElementById('screen');
-const ctx = canvas.getContext('2d');
-const consoleSelect = document.getElementById('consoleSelect');
-const romInput = document.getElementById('romInput');
-
-let currentEmulator = null;
-
-function loadNES(romData) {
-  const nes = new jsnes.NES({
-    onFrame: function (frameBuffer) {
-      const imageData = ctx.getImageData(0, 0, 256, 240);
-      for (let i = 0; i < frameBuffer.length; i++) {
-        const pixel = frameBuffer[i];
-        imageData.data[i * 4 + 0] = (pixel >> 16) & 0xFF;
-        imageData.data[i * 4 + 1] = (pixel >> 8) & 0xFF;
-        imageData.data[i * 4 + 2] = pixel & 0xFF;
-        imageData.data[i * 4 + 3] = 0xFF;
-      }
-      ctx.putImageData(imageData, 0, 0);
-    }
-  });
-  nes.loadROM(romData);
-  nes.start();
-  currentEmulator = nes;
-}
-
-// SNES
-function loadSNES(romData) {
-  // Aquí iría la lógica de snes9x (necesita WebAssembly y configuración especial)
-  alert("Soporte para SNES aún en desarrollo. (Aquí iría snes9x.js)");
-}
-
-romInput.addEventListener('change', function () {
-  const file = this.files[0];
-  const reader = new FileReader();
-  reader.onload = function () {
-    const romData = reader.result;
-    const selected = consoleSelect.value;
-    if (selected === 'nes') {
-      loadNES(romData);
-    } else if (selected === 'snes') {
-      loadSNES(romData);
-    }
-  };
-  reader.readAsBinaryString(file);
-});const canvas = document.getElementById('screen');
-const ctx = canvas.getContext('2d');
-const consoleSelect = document.getElementById('consoleSelect');
-const romInput = document.getElementById('romInput');
-
-let currentEmulator = null;
-
-function loadNES(romData) {
-  const nes = new jsnes.NES({
-    onFrame: function (frameBuffer) {
-      const imageData = ctx.getImageData(0, 0, 256, 240);
-      for (let i = 0; i < frameBuffer.length; i++) {
-        const pixel = frameBuffer[i];
-        imageData.data[i * 4 + 0] = (pixel >> 16) & 0xFF;
-        imageData.data[i * 4 + 1] = (pixel >> 8) & 0xFF;
-        imageData.data[i * 4 + 2] = pixel & 0xFF;
-        imageData.data[i * 4 + 3] = 0xFF;
-      }
-      ctx.putImageData(imageData, 0, 0);
-    }
-  });
-  nes.loadROM(romData);
-  nes.start();
-  currentEmulator = nes;
-}
-
-// SNES
-function loadSNES(romData) {
-  // Aquí iría la lógica de snes9x (necesita WebAssembly y configuración especial)
-  alert("Soporte para SNES aún en desarrollo. (Aquí iría snes9x.js)");
-}
-
-romInput.addEventListener('change', function () {
-  const file = this.files[0];
-  const reader = new FileReader();
-  reader.onload = function () {
-    const romData = reader.result;
-    const selected = consoleSelect.value;
-    if (selected === 'nes') {
-      loadNES(romData);
-    } else if (selected === 'snes') {
-      loadSNES(romData);
-    }
-  };
-  reader.readAsBinaryString(file);
-});const canvas = document.getElementById('screen');
-const ctx = canvas.getContext('2d');
-const consoleSelect = document.getElementById('consoleSelect');
-const romInput = document.getElementById('romInput');
-
-let currentEmulator = null;
-
-function loadNES(romData) {
-  const nes = new jsnes.NES({
-    onFrame: function (frameBuffer) {
-      const imageData = ctx.getImageData(0, 0, 256, 240);
-      for (let i = 0; i < frameBuffer.length; i++) {
-        const pixel = frameBuffer[i];
-        imageData.data[i * 4 + 0] = (pixel >> 16) & 0xFF;
-        imageData.data[i * 4 + 1] = (pixel >> 8) & 0xFF;
-        imageData.data[i * 4 + 2] = pixel & 0xFF;
-        imageData.data[i * 4 + 3] = 0xFF;
-      }
-      ctx.putImageData(imageData, 0, 0);
-    }
-  });
-  nes.loadROM(romData);
-  nes.start();
-  currentEmulator = nes;
-}
-
-// SNES
-function loadSNES(romData) {
-  // Aquí iría la lógica de snes9x (necesita WebAssembly y configuración especial)
-  alert("Soporte para SNES aún en desarrollo. (Aquí iría snes9x.js)");
-}
-
-romInput.addEventListener('change', function () {
-  const file = this.files[0];
-  const reader = new FileReader();
-  reader.onload = function () {
-    const romData = reader.result;
-    const selected = consoleSelect.value;
-    if (selected === 'nes') {
-      loadNES(romData);
-    } else if (selected === 'snes') {
-      loadSNES(romData);
-    }
-  };
-  reader.readAsBinaryString(file);
-});
+</html>
