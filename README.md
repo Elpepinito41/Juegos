@@ -1,123 +1,93 @@
-#<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Juegos para Celular</title>
+  <title>Test de Lógica Extrema</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f0f0f0;
-      margin: 0;
-      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #222;
+      color: #fff;
       text-align: center;
+      padding-top: 50px;
     }
-    header {
-      background: #4CAF50;
-      color: white;
-      padding: 1rem;
+    .container {
+      max-width: 600px;
+      margin: auto;
     }
-    .game-container {
-      margin: 1rem;
-      padding: 1rem;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #ccc;
-    }
-    iframe {
-      width: 100%;
-      height: 300px;
-      border: none;
-    }
-    h2 {
-      margin-top: 0.5rem;
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>🎮 Juegos para Celular</h1>
-    <p>Disfruta juegos gratis en tu móvil</p>
-  </header>
-
-  <div class="game-container">
-    <h2>1. Snake (Clásico)</h2>
-    <iframe src="https://playsnake.org/" title="Snake Game"></iframe>
+  <div class="container">
+    <h1 id="title">Test de Lógica Extrema</h1>
+    <p id="question">¿Estás listo para comenzar?</p>
+    <div id="buttons">
+      <button onclick="startGame()">¡Sí!</button>
+    </div>
   </div>
 
-  <div class="game-container">
-    <h2>2. 2048</h2>
-    <iframe src="https://play2048.co/" title="2048 Game"></iframe>
-  </div>
+  <script>
+    let step = 0;
 
-  <div class="game-container">
-    <h2>3. Dino Game (Offline Chrome Game)</h2>
-    <iframe src="https://chromedino.com/" title="Dino Game"></iframe>
-  </div>
+    const questions = [
+      {
+        q: "¿Cuánto es 2 + 2?",
+        options: ["3", "4", "5"],
+        correct: "4",
+        troll: "Respuesta incorrecta. 2 + 2 = Pez según la lógica cuántica."
+      },
+      {
+        q: "¿Cuál es el color del cielo?",
+        options: ["Azul", "Rojo", "Verde"],
+        correct: "Azul",
+        troll: "Respuesta incorrecta. El cielo es una ilusión creada por los pingüinos."
+      },
+      {
+        q: "¿Qué planeta habitamos?",
+        options: ["Marte", "Tierra", "Saturno"],
+        correct: "Tierra",
+        troll: "Respuesta incorrecta. Tú vives en el plano astral 7."
+      },
+      {
+        q: "Has llegado al final. ¿Eres lógico?",
+        options: ["Sí", "No", "Depende"],
+        correct: "Sí",
+        troll: "Has fallado todas las preguntas... ¡Felicidades! Eres oficialmente un Genio Incomprendido™."
+      }
+    ];
 
-  <footer style="padding: 1rem; background: #ddd;">
-    <p>© 2025 JuegosCelulares.com</p>
-  </footer>
+    function startGame() {
+      nextQuestion();
+    }
+
+    function nextQuestion() {
+      if (step >= questions.length) {
+        document.getElementById("title").innerText = "Fin del test";
+        document.getElementById("question").innerText = "Gracias por jugar 😎";
+        document.getElementById("buttons").innerHTML = "<p style='font-size:24px;'>Te hemos trolleado, pero fue con amor.</p>";
+        return;
+      }
+
+      const q = questions[step];
+      document.getElementById("question").innerText = q.q;
+      const btns = q.options.map(opt =>
+        `<button onclick="checkAnswer('${opt}')">${opt}</button>`
+      ).join("");
+      document.getElementById("buttons").innerHTML = btns;
+    }
+
+    function checkAnswer(selected) {
+      const q = questions[step];
+      alert(q.troll);
+      step++;
+      nextQuestion();
+    }
+  </script>
 </body>
-</html><!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Juegos para Celular</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f0f0f0;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    header {
-      background: #4CAF50;
-      color: white;
-      padding: 1rem;
-    }
-    .game-container {
-      margin: 1rem;
-      padding: 1rem;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px #ccc;
-    }
-    iframe {
-      width: 100%;
-      height: 300px;
-      border: none;
-    }
-    h2 {
-      margin-top: 0.5rem;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>🎮 Juegos para Celular</h1>
-    <p>Disfruta juegos gratis en tu móvil</p>
-  </header>
+</html>
 
-  <div class="game-container">
-    <h2>1. Snake (Clásico)</h2>
-    <iframe src="https://playsnake.org/" title="Snake Game"></iframe>
-  </div>
-
-  <div class="game-container">
-    <h2>2. 2048</h2>
-    <iframe src="https://play2048.co/" title="2048 Game"></iframe>
-  </div>
-
-  <div class="game-container">
-    <h2>3. Dino Game (Offline Chrome Game)</h2>
-    <iframe src="https://chromedino.com/" title="Dino Game"></iframe>
-  </div>
-
-  <footer style="padding: 1rem; background: #ddd;">
-    <p>© 2025 JuegosCelulares.com</p>
-  </footer>
-</body>
-</html> Juegos
